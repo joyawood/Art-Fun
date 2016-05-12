@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<style>
+  circle{
+    fill: steelblue;
+  }
+</style>
+<body> <div id="draw">
+</div>
+</body>
+
+<script>
+
+  var data = Array.apply(null, {length: 200}).map(Number.call, Number);
+  var width = 1000;
+  var height = 440;
+  var margins = {top:60, bottom:60, left: 60, right:60};
+  var chartWidth = width - margins.left - margins.right;
+  var chartHeight = height - margins.top - margins.bottom;
+  var center = {x: chartWidth/2, y: chartHeight/2};
+  var radius = Math.min(center.x, center.y);
+  var num = 2;//starting multiplication value
+
+
+
+  var svg = d3.select("#draw")
+  .append("svg")
+  .attr({width:width, height:height});
+
+  var chart = svg.append("g")
+  .attr("transform", "translate("+margins.left + "," + margins.top + ")");
+
+  var angleToPoint = function(angle) {
+    return {
+      x: center.x + radius*Math.cos(angle),
+      y: center.y + radius*Math.sin(angle)
+    };
+  };
+
+  var anchorPoints = data.map(function(d, i, arr){return angleToPoint((2*Math.PI/arr.length)*i);});
+
+  var generateConnections = function(n){
+    console.log(n);
+    var lineData = [];
+    for (var i = 0; i < 200; i ++){
+      origin = i;
+      destination = (n*i) % 200;
+      temp = {"oX": anchorPoints[origin].x, "oY": anchorPoints[origin].y, "dX": anchorPoints[destination].x, "dY": anchorPoints[destination].y };
+      lineData.push(temp);
+    }
+    return lineData;
+  }
+
+
+  var render = function(){
+    if (num > 200){
+      num = 2;
+    }
+    draw(generateConnections(num));
+    num++;
+  }
+
+  //hardcoded pastel colored gradient.
+  //shoutout to http://krazydad.com/tutorials/makecolors.php
+  function makeColorGradient(i)
+  {
+    var frequency1 = .3
+    var frequency2 =.3
+    var frequency3 =.3
+    var phase1=0
+    var phase2=2;
+    var phase3=4;
+    var center=230;
+    var width=15;
+    var len = 50;
+
+    var red = Math.sin(frequency1*i + phase1) * width + center;
+    var grn = Math.sin(frequency2*i + phase2) * width + center;
+    var blu = Math.sin(frequency3*i + phase3) * width + center;
+    console.log(RGB2Color(red,grn,blu));
+    return RGB2Color(red,grn,blu);
+
+  }
+
+
+  //colorGradient helper functions
+  function RGB2Color(r,g,b)
+  {
+   return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+  }
+  function byte2Hex(n)
+  {
+    var nybHexString = "0123456789ABCDEF";
+    return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+  }
+
+  var draw = function(data){
+    chart.selectAll("line").remove();
+    var lines = chart.selectAll("line").data(data);
+    lines.exit().remove();
+    lines.enter().append("line")
+        .style("stroke", function(d){return makeColorGradient(num);})  // colour the line
+        .attr("x1", function(d){return d.oX;})     // x position of the first end of the line
+        .attr("y1", function(d){return d.oY;})      // y position of the first end of the line
+        .attr("x2", function(d){return d.dX;})     // x position of the second end of the line
+        .attr("y2", function(d){return d.dY;});    // y position of the second end of the line
+
+      }
+
+  render();
+  //render 4 times a sec
+  setInterval(render, 250);
+
+
+</script>
+</body>
+</html>
