@@ -18,4 +18,5 @@ Still: 101 multiplication table
 dancingSquares.pde is a processing sketch made to introduce into Java students to generative art and modular arithmetic.
 
 ![still1](https://github.com/joyawood/Art-Fun/blob/master/dance1.png?raw=true)
+
 ![still2](https://github.com/joyawood/Art-Fun/blob/master/dance2.png?raw=true)
